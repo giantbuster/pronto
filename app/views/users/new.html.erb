@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Pronto</title>
+</head>
+<body>
+	<p>Register</p>
+	<%= simple_form_for @user do |f| %>
+		<%= f.input :f_name, label: "First Name:" %>
+		<%= f.input :l_name, label: "Last Name:" %>
+		<%= f.input :email, label: "Email:" %>
+		<%= f.input :password, label: "Password:" %>
+		<%= f.input :password_confirmation, label: "Confirm Password:" %>
+		<%= f.button :submit %>
+	<% end %>
+
+
+	<p>Login</p>
+	<%= simple_form_for(:session, url: sessions_path) do |f| %>
+		<%= f.input :email %>
+		<%= f.input :password %>
+		<%= f.button :submit %>
+	<% end %>
+
+<p><%= link_to "SIGN OUT", signout_path, method: "delete" %> </p>
+
+	
+</body>
+</html>

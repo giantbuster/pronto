@@ -1,0 +1,156 @@
+<div id="demo"></div>
+<div id="coords"></div>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+
+<script>
+$(document).ready(function(){
+getLocation();
+
+
+$('.restaurant-search').focus(function(){
+    $('.location-search-container').show();
+})      
+var x = document.getElementById("demo");
+function getLocation()
+  {
+  if (navigator.geolocation)
+    {
+    navigator.geolocation.getCurrentPosition(showPosition);
+    }
+  else{x.innerHTML = "Geolocation is not supported by this browser.";}
+  }
+function showPosition(position)
+  {
+  $.ajax({
+    type: 'GET',
+    url: '/restaurants/new',
+    data: {lat: position.coords.latitude, lon: position.coords.longitude},
+    dataType:'json',
+    success: function(data)
+    {
+      var response = data.restaurants;
+      var length = response.length;
+      console.log(response);
+      for(var i = 0; i< length; i++)
+      {
+        // $('.restaurants-list').append('<div class="restaurant">\
+        //     <p class="title">'+response[i].name+'</p>\
+        //       <p>Wait time: </p>'+response[i].wait_time+'\
+        //       <p><img class="rating" style="margin: none" src="'+response[i].rating_img_url+'"></p>\
+        //       <p>Distance: '+(response[i].distance*.000621).toFixed(2)+' miles</p>\
+        //       <div class= "update">\
+        //         <button>Update</button>\
+        //         </div>\
+        //       <form method="post" action="/updates">\
+        //         <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">\
+        //         <input type="hidden" name="yelp_id" value="'+response[i].id+'">\
+        //         <input type="radio" name="status" value=1>None<br>\
+        //         <input type="radio" name="status" value=2>Short<br>\
+        //         <input type="radio" name="status" value=3>Moderate<br>\
+        //         <input type="radio" name="status" value=4>Long<br>\
+        //         <input type="submit" value="update">\
+        //       </form>\
+        //       </div>');
+        
+        $('.restaurants-list').append('<div class="restaurant">\
+            <p class="title">'+response[i].name+'</p>\
+            <p>Wait time: '+response[i].wait_time+'</p>\
+            <img class="rating" style="margin: none" src="'+response[i].rating_img_url+'">\
+            <p>Distance: '+(response[i].distance*.000621).toFixed(2)+' miles</p>\
+            <p class="last-updated">'+response[i].last_updated+'</p>\
+            <div class= "update">\
+              <div class="colorbar '+response[i].wait_time.toLowerCase()+'">\
+                <img src="assets/time_gray.png">\
+              </div>\
+              <p>Update wait time: </p>\
+              <form method="post" action="/updates">\
+                <input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">\
+                <input type="hidden" name="yelp_id" value="'+response[i].id+'">\
+                <div class="update-wait-time">\
+                  <label class="wait-none-btn"><input type="radio" name="status" value=1><span>None</span></label>\
+                  <label class="wait-short-btn"><input type="radio" name="status" value=2><span>Short</span></label>\
+                  <label class="wait-moderate-btn"><input type="radio" name="status" value=3><span>Moderate</span></label>\
+                  <label class="wait-long-btn"><input type="radio" name="status" value=4><span>Long</span></label>\
+                </div>\
+                <button class="update-btn" value="update" type="submit">Update</button>\
+              </form>\
+            </div>');
+      }
+      // $('.restaurant').click(function(){
+      //   var $update = $(this).children('.update');
+      //   $update.slideToggle();
+      //   if ($(this).is(':last-child')){
+      //     $('html, body').animate({
+      //         scrollTop: $(this).children('.update').offset().top
+      //     }, 300);
+      //   }
+      // });
+      $('.restaurant *').click(function(e){
+        if( $(this).prop("tagName") != 'P' ) return;
+        var $update = $(this).parent().children('.update');
+        if (parseInt($update.css('right'))== -160){
+          $update.animate({
+            "right": "+=160px"
+              }, 
+              300
+          );
+        } else if (parseInt($update.css('right'))== 0){
+          $update.animate({
+            "right": "-=160px"
+              }, 
+              300
+          );
+        }
+        if ($(this).is(':last-child')){
+          $('html, body').animate({
+              scrollTop: $(this).children('.update').offset().top
+          }, 300);
+        }
+      });
+
+    }
+  }); 
+  }
+
+  $('#search_form').submit(function(){
+    $.ajax({
+      type: 'GET',
+      url: '/restaurants/show',
+      data: $('#search_form').serialize(),
+      dataType: 'json',
+      success: function(data)
+      {
+        console.log(data);
+      }
+    })
+  })
+
+})
+
+</script>
+
+<div class="myNavbar">
+  <img src="/assets/brown-logo.png" class="logo">
+    <div class="search-bar">
+      <form class="form-search" id="search">
+        <div class="input-group">
+          <input type="text" class="form-control search-query restaurant-search" placeholder="Find A Restaurant">
+          <span class="input-group-btn">
+            <button type="submit" class="btn btn-default btn-icon" type="button"><img src="assets/search_glass_w.png"></button>
+          </span>
+        </div><!-- /input-group -->
+        <div class="location-search-container">
+            <input type="text" class="form-control search-query location-search" placeholder="Near..." value="Current Location"/>
+            <div class="icon arrow"></div>
+        </div>
+      </form>
+  </div>
+</div>
+<div class="container">
+  <div class="restaurants-list">
+    
+  </div> <!-- /.restaurant-list -->
+</div> <!-- /.container -->
+<div class="footer">
+<button>Login</button>
+</div>
